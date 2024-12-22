@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hand Detection and Classification</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        .custom-border {
+            border-width: 5px;
+            border-color: #3B82F6;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <nav class="bg-blue-600 p-4">
+        <div class="container mx-auto text-center">
+            <h1 class="text-white text-3xl font-bold">Hand Detection and Classification</h1>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8">
+        <div class="flex justify-center">
+            <div class="w-full max-w-2xl bg-white p-6 rounded-lg shadow-lg">
+                <div class="mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-800">Live Camera</h2>
+                </div>
+                <div class="flex justify-center">
+                    <img id="video" src="{{ url_for('video_feed') }}" class="border custom-border custom-shadow rounded-lg" />
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-gray-600">Place your hand in front of the camera to see if it is recognized.</p>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-blue-500 text-lg font-bold" id="detected-sentence">Detected Sentence: <span id="sentence"></span></p>
+                </div>
+                <div class="mt-4 text-center">
+                    <button id="clearButton" class="bg-red-500 text-white p-2 rounded">Clear Sentence</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sentenceSpan = document.getElementById('sentence');
+        const clearButton = document.getElementById('clearButton');
+
+        // Fetch and display the current sentence
+        setInterval(() => {
+            fetch('/get_current_sentence')
+                .then(response => response.json())
+                .then(data => {
+                    sentenceSpan.textContent = data.sentence;
+                });
+        }, 1000);
+
+        // Clear the sentence when the button is clicked
+        clearButton.addEventListener('click', () => {
+            fetch('/clear_sentence', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => response.json())
+              .then(data => {
+                  if (data.success) {
+                      sentenceSpan.textContent = '';  // Clear the displayed sentence
+                  }
+              });
+        });
+    </script>
+
+</body>
+</html>
